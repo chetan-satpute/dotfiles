@@ -1,0 +1,12 @@
+format = """$character"""
+
+right_format = """\
+$directory\ 
+$git_branch\
+$git_status\
+"""
+
+[character]
+success_symbol = '[λ](green)'
+error_symbol = '[λ](green)'
+
