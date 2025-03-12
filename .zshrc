@@ -78,3 +78,4 @@ add-zsh-hook chpwd auto-switch-node-version
 auto-switch-node-version
 
 # ==========
+export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
