@@ -6,6 +6,11 @@ vim.g.maplocalleader = " "
 vim.opt.number = true
 vim.opt.relativenumber = true
 
+-- Set tab width and indentation to 2 spaces
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.expandtab = true
+
 -- Enable mouse mode
 vim.opt.mouse = "a"
 
@@ -51,9 +56,9 @@ vim.opt.incsearch = true
 
 -- Change character for diagnostic message
 vim.diagnostic.config({
-  virtual_text = {
-    prefix = '~', -- Could be '●', '▎', 'x'
-  }
+    virtual_text = {
+        prefix = "~", -- Could be '●', '▎', 'x'
+    },
 })
 
 -- Open fugitive diff in vertical split

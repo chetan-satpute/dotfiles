@@ -1,17 +1,18 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 func main() {
-	// Use the current working directory as dotfilesDir
-	dotfilesDir, err := os.Getwd()
+	dotfilesDir, err := GetGitRoot()
 	if err != nil {
-		fmt.Println("❌ Failed to get current working directory:", err)
+		fmt.Println("❌ Failed to get dotfiles directory:", err)
 		os.Exit(1)
 	}
 
@@ -44,3 +45,16 @@ func main() {
 	fmt.Println("✅ All packages stowed to", targetDir)
 }
 
+func GetGitRoot() (string, error) {
+	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
+
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return "", fmt.Errorf("failed to get git root directory: %w", err)
+	}
+
+	return strings.TrimSpace(out.String()), nil
+}
