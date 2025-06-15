@@ -1,6 +1,7 @@
 return {
-    tsserver = {},
+    ts_ls = {},
     eslint = {},
+    gopls = {},
     lua_ls = {
         settings = {
             Lua = {

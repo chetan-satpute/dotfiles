@@ -56,7 +56,10 @@ vim.opt.incsearch = true
 
 -- Change character for diagnostic message
 vim.diagnostic.config({
+    severity_sort = true,
+    float = { border = "rounded", source = "if_many" },
     virtual_text = {
+        spacing = 2,
         prefix = "~", -- Could be '●', '▎', 'x'
     },
 })
