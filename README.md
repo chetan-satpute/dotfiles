@@ -1,6 +1,6 @@
 # 🧰 dotfiles
 
-My personal dotfiles, managed with GNU Stow and a Go-based installer script.
+My personal dotfiles, managed with [GNU Stow](https://www.gnu.org/software/stow/)
 
 ## 🚀 Quick Start
 
@@ -14,13 +14,15 @@ cd ~/.dotfiles
 Install dotfiles:
 
 ```zsh
-go run scripts/install.go
+./scripts/install.zsh
+
 # or
-stow --dir=packages <package_name> --target=$HOME
-stow --dir=packages nvim --target=$HOME
+
+stow --dir=packages --target=$HOME <package_name>
+stow --dir=packages --target=$HOME nvim
 ```
 
 ## 🧪 Requirements
 - GNU Stow
-- Go
+- zsh
 
