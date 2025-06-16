@@ -64,5 +64,24 @@ vim.diagnostic.config({
     },
 })
 
+-- Diagnostic Config
+-- See :help vim.diagnostic.Opts
+vim.diagnostic.config({
+    severity_sort = true,
+    float = { border = "rounded", source = "if_many" },
+    signs = {
+        text = {
+            [vim.diagnostic.severity.ERROR] = "✘",
+            [vim.diagnostic.severity.WARN] = "▲",
+            [vim.diagnostic.severity.INFO] = "ℹ",
+            [vim.diagnostic.severity.HINT] = "󰌶 ",
+        },
+    },
+    virtual_text = {
+        source = "if_many",
+        prefix = "~",
+    },
+})
+
 -- Open fugitive diff in vertical split
 vim.opt.diffopt:append("vertical")

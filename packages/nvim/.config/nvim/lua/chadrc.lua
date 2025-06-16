@@ -1,6 +1,12 @@
 local M = {
     base46 = {
         theme = "tokyonight",
+        hl_add = {
+            DiagnosticUnderlineError = { underline = false, undercurl = true, sp = "#F7768E" },
+            DiagnosticUnderlineWarn = { underline = false, undercurl = true, sp = "#E0AF68" },
+            DiagnosticUnderlineInfo = { underline = false },
+            DiagnosticUnderlineHint = { underline = false },
+        },
     },
     ui = {
         cmp = {
