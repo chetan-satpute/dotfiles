@@ -1,5 +1,5 @@
 return {
-    "nvim-telescope/telescope.nvim",
+    "chetan-satpute/telescope.nvim",
     dependencies = { "nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons" },
     opts = {
         defaults = {
@@ -7,18 +7,16 @@ return {
             selection_caret = " ➜ ",
             entry_prefix = "   ",
             layout_strategy = "horizontal",
-
-            icon_separator = " ::",
         },
         pickers = {
             find_files = {
-                icon_separator = " ::",
+                icon_separator = "  ",
             },
             live_grep = {
-                icon_separator = " ::",
+                icon_separator = "  ",
             },
             buffers = {
-                icon_separator = " ::"
+                icon_separator = "  "
             }
         },
     },

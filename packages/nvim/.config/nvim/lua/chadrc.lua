@@ -14,7 +14,7 @@ local M = {
             style = "default", -- default/flat_light/flat_dark/atom/atom_colored
             abbr_maxwidth = 60,
             -- for tailwind, css lsp etc
-            format_colors = { lsp = true, icon = "󱓻" },
+            format_colors = { lsp = true, icon = "󱓻 " },
         },
 
         telescope = { style = "borderless" }, -- borderless / bordered
@@ -27,6 +27,12 @@ local M = {
         tabufline = {
             enabled = false,
         },
+    },
+    colorify = {
+        enabled = true,
+        mode = "fg", -- fg, bg, virtual
+        virt_text = "󱓻 ",
+        highlight = { hex = true, lspvars = true },
     },
 }
 
