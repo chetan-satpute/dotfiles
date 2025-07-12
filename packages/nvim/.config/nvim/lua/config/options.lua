@@ -85,3 +85,6 @@ vim.diagnostic.config({
 
 -- Open fugitive diff in vertical split
 vim.opt.diffopt:append("vertical")
+
+-- disable copilot globally
+vim.g.copilot_enabled = false
