@@ -7,7 +7,7 @@ My personal dotfiles, managed with [GNU Stow](https://www.gnu.org/software/stow/
 Clone the repo:
 
 ```zsh
-git clone https://github.com/yourusername/dotfiles.git ~/.dotfiles
+git clone git@github.com:chetan-satpute/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ```
 
