@@ -56,35 +56,32 @@ vim.opt.incsearch = true
 
 -- Change character for diagnostic message
 vim.diagnostic.config({
-    severity_sort = true,
-    float = { border = "rounded", source = "if_many" },
-    virtual_text = {
-        spacing = 2,
-        prefix = "~", -- Could be '●', '▎', 'x'
-    },
+	severity_sort = true,
+	float = { border = "rounded", source = "if_many" },
+	virtual_text = {
+		spacing = 2,
+		prefix = "~", -- Could be '●', '▎', 'x'
+	},
 })
 
 -- Diagnostic Config
 -- See :help vim.diagnostic.Opts
 vim.diagnostic.config({
-    severity_sort = true,
-    float = { border = "rounded", source = "if_many" },
-    signs = {
-        text = {
-            [vim.diagnostic.severity.ERROR] = "✘",
-            [vim.diagnostic.severity.WARN] = "▲",
-            [vim.diagnostic.severity.INFO] = "ℹ",
-            [vim.diagnostic.severity.HINT] = "󰌶 ",
-        },
-    },
-    virtual_text = {
-        source = "if_many",
-        prefix = "~",
-    },
+	severity_sort = true,
+	float = { border = "rounded", source = "if_many" },
+	signs = {
+		text = {
+			[vim.diagnostic.severity.ERROR] = "✘",
+			[vim.diagnostic.severity.WARN] = "▲",
+			[vim.diagnostic.severity.INFO] = "ℹ",
+			[vim.diagnostic.severity.HINT] = "󰌶 ",
+		},
+	},
+	virtual_text = {
+		source = "if_many",
+		prefix = "~",
+	},
 })
 
 -- Open fugitive diff in vertical split
 vim.opt.diffopt:append("vertical")
-
--- disable copilot globally
-vim.g.copilot_enabled = false
