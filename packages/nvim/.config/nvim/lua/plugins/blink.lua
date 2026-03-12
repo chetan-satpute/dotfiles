@@ -54,7 +54,7 @@ return {
 			},
 			list = {
 				selection = {
-					preselect = false,
+					preselect = true,
 				},
 			},
 		},
