@@ -11,7 +11,8 @@ return {
             css = { "prettier" },
             sql = { "sql_formatter" },
             json = { "prettier" },
-            go = { "gofmt" }
+            go = { "gofmt" },
+            ruby = { "rubocop" }
         },
     },
     default_format_opts = {

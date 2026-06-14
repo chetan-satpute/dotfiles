@@ -37,7 +37,7 @@ for pkg_path in "$packages_dir"/*; do
     pkg=$(basename "$pkg_path")
     printf "→ ${BOLD}Stowing${RESET} ${BLUE}%-20s${RESET}" "$pkg"
 
-    if stow --target="$target_dir" --dir="$packages_dir" "$pkg" >/dev/null 2>&1; then
+    if stow --adopt --target="$target_dir" --dir="$packages_dir" "$pkg"; then
       echo " ${GREEN}[OK]${RESET}"
     else
       echo " ${RED}[FAILED]${RESET}"

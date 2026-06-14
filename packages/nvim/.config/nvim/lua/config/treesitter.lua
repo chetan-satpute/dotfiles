@@ -1,5 +1,5 @@
 vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "lua", "typescript", "typescriptreact" },
+	pattern = { "lua", "typescript", "typescriptreact", "markdown", "ruby" },
 	callback = function()
 		vim.treesitter.start() -- highlighting
 		-- vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()" -- folds
