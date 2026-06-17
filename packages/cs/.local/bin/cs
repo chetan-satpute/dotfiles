@@ -1,0 +1,281 @@
+#!/usr/bin/env zsh
+
+# --- Configuration ---
+WORKTREE_ROOT="$HOME/Worktree"
+GITHUB_ROOT="$HOME/Github"
+
+# --- UI Formatting & Design Helpers ---
+CLR_RESET="\033[0m"
+CLR_RED="\033[31m"
+CLR_GREEN="\033[32m"
+CLR_BLUE="\033[34m"
+CLR_CYAN="\033[1;36m"
+CLR_MAGENTA="\033[1;35m"
+CLR_DIM="\033[2m"
+
+msg_info() {
+    printf "${CLR_BLUE}✦${CLR_RESET} %s\n" "$1"
+}
+
+msg_success() {
+    printf "${CLR_GREEN}✔${CLR_RESET} %s\n" "$1"
+}
+
+msg_header_direct() {
+    local count="$1"
+    printf "${CLR_CYAN}Direct Requests (%d)${CLR_RESET}\n" "$count"
+    printf "${CLR_DIM}──────────────────────────────────────────────────────────────────────────────────────────${CLR_RESET}\n"
+}
+
+msg_header_team() {
+    local count="$1"
+    printf "${CLR_MAGENTA}Team Requests (%d)${CLR_RESET}\n" "$count"
+    printf "${CLR_DIM}──────────────────────────────────────────────────────────────────────────────────────────${CLR_RESET}\n"
+}
+
+pretty_path() {
+    echo "${1/#$HOME/\~}"
+}
+
+error() {
+    local headline="$1"
+    local details="$2"
+    
+    printf >&2 "${CLR_RED}[error]${CLR_RESET} %s\n" "$headline"
+    if [[ -n "$details" ]]; then
+        printf >&2 "%s\n" "$details"
+    fi
+    exit 1
+}
+
+# --- Subcommands ---
+
+cmd_help() {
+    printf "${CLR_CYAN}cs${CLR_RESET} - A CLI tool built to streamline developer workflows.\n\n"
+    printf "${CLR_DIM}Usage:${CLR_RESET}\n"
+    printf "  cs <command> [arguments]\n\n"
+    printf "${CLR_DIM}Commands:${CLR_RESET}\n"
+    printf "  ${CLR_GREEN}worktree${CLR_RESET}              \tLaunch interactive fzf picker to jump to active worktrees\n"
+    printf "  ${CLR_GREEN}worktree add${CLR_RESET} <branch>  \tSafely isolate and build a branch inside a new worktree\n"
+    printf "  ${CLR_GREEN}worktree remove${CLR_RESET} <branch>   \tPurge a local worktree directory securely\n"
+    printf "  ${CLR_GREEN}review${CLR_RESET}                \tFetch a single-request live view of pending PR evaluations\n"
+    printf "  ${CLR_GREEN}help, -h, --help${CLR_RESET}      \tDisplay this architectural breakdown\n"
+}
+
+# --- Runtime Dependency Engine ---
+check_deps() {
+    local missing=()
+    for cmd in git gh fzf jq; do
+        command -v "$cmd" >/dev/null 2>&1 || missing+=("$cmd")
+    done
+    if (( ${#missing[@]} > 0 )); then
+        error "missing system dependencies" "run 'brew install' for: ${(j:, :)missing}"
+    fi
+}
+
+get_repo_info() {
+    local err
+    if ! err=$(git rev-parse --is-inside-work-tree 2>&1); then
+        error "failed to validate git environment context" "$err"
+    fi
+
+    local origin_url
+    if ! origin_url=$(git remote get-url origin 2>&1); then
+        error "failed to retrieve 'origin' remote configuration" "$origin_url"
+    fi
+
+    local path_part
+    if [[ "$origin_url" == git@* ]]; then
+        path_part="${origin_url#*:}"
+    elif [[ "$origin_url" == https://* ]]; then
+        path_part="${origin_url#*://*/}"
+    else
+        error "unsupported or malformed git remote url protocol" "$origin_url"
+    fi
+
+    path_part="${path_part%.git}"
+    REPO_OWNER="${path_part%%/*}"
+    REPO_NAME="${path_part#*/}"
+}
+
+cmd_worktree_add() {
+    local branch="$1"
+    if [[ -z "$branch" ]]; then
+        error "missing required branch argument" "usage: cs worktree add <branch>"
+    fi
+
+    get_repo_info
+    local wt_path="$WORKTREE_ROOT/$REPO_OWNER/$REPO_NAME/$branch"
+
+    if [[ -d "$wt_path" ]]; then
+        error "worktree directory conflict" "path already occupied: $(pretty_path "$wt_path")"
+    fi
+
+    mkdir -p "$WORKTREE_ROOT/$REPO_OWNER/$REPO_NAME"
+
+    local output
+    if git show-ref --verify --quiet "refs/heads/$branch"; then
+        msg_info "Mounting local branch '${branch}'..."
+        if ! output=$(git worktree add "$wt_path" "$branch" 2>&1); then
+            error "failed to allocate local worktree reference" "$output"
+        fi
+
+    elif git ls-remote --heads origin "$branch" | grep -q "refs/heads/$branch$"; then
+        msg_info "Fetching remote branch stream for '${branch}'..."
+        if ! output=$(git fetch origin "$branch" --quiet 2>&1); then
+            error "failed to synchronize remote reference updates" "$output"
+        fi
+        if ! output=$(git worktree add "$wt_path" "$branch" 2>&1); then
+            error "failed to allocate remote worktree layout" "$output"
+        fi
+
+    else
+        msg_info "Branch not found; initializing tracking branch '${branch}'..."
+        if ! output=$(git worktree add -b "$branch" "$wt_path" 2>&1); then
+            error "failed to create new git branch context" "$output"
+        fi
+    fi
+    
+    msg_success "Active: $(pretty_path "$wt_path")"
+}
+
+cmd_worktree_remove() {
+    local branch="$1"
+    if [[ -z "$branch" ]]; then
+        error "missing required branch argument" "usage: cs worktree remove <branch>"
+    fi
+
+    get_repo_info
+    local wt_path="$WORKTREE_ROOT/$REPO_OWNER/$REPO_NAME/$branch"
+
+    if [[ ! -d "$wt_path" ]]; then
+        error "directory tracking missing" "target worktree path not found: $(pretty_path "$wt_path")"
+    fi
+
+    msg_info "Purging worktree directory..."
+    local output
+    if ! output=$(git worktree remove "$wt_path" 2>&1); then
+        error "failed to purge git worktree link" "$output"
+    fi
+    
+    msg_success "Removed worktree for '${branch}'"
+}
+
+cmd_worktree_list() {
+    get_repo_info
+    local wt_base="$WORKTREE_ROOT/$REPO_OWNER/$REPO_NAME"
+
+    if [[ ! -d "$wt_base" ]]; then
+        error "index lookup failed" "no active worktrees found for $REPO_OWNER/$REPO_NAME"
+    fi
+
+    local selected
+    selected=$(find "$wt_base" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | fzf --prompt="worktree > ")
+
+    if [[ -n "$selected" ]]; then
+        local target_path="$wt_base/$selected"
+        
+        if [[ -z "$KITTY_WINDOW_ID" ]]; then
+            error "window context missing" "kitty window context not detected"
+        fi
+
+        local output
+        if ! output=$(kitty @ launch --type=tab --cwd="$target_path" 2>&1); then
+            error "failed to initialize new kitty tab layout" "$output"
+        fi
+    fi
+}
+
+cmd_review() {
+    local payload
+    if ! payload=$(gh api graphql -f query='
+        query {
+          viewer { login }
+          search(query: "is:pr is:open review-requested:@me", type: ISSUE, first: 50) {
+            nodes {
+              ... on PullRequest {
+                repository { name }
+                number
+                title
+                author { login }
+                url
+                reviewRequests(first: 20) {
+                  nodes {
+                    requestedReviewer { ... on User { login } }
+                  }
+                }
+              }
+            }
+          }
+        }
+    ' 2>&1); then
+        error "github api connection failure" "$payload"
+    fi
+
+    local handle
+    handle=$(echo "$payload" | jq -r '.data.viewer.login' 2>/dev/null)
+    
+    if [[ -z "$handle" || "$handle" == "null" ]]; then
+        error "github response parsing failure" "failed to extract an active identity token from payload"
+    fi
+
+    local direct team
+    direct=$(echo "$payload" | jq -r --arg me "$handle" '
+        .data.search.nodes[] | 
+        select(any(.reviewRequests.nodes[]; .requestedReviewer.login == $me)) | 
+        "\(.repository.name)\t#\(.number)\t\(.title)\t\(.author.login)\t\(.url)"
+    ' 2>/dev/null)
+
+    team=$(echo "$payload" | jq -r --arg me "$handle" '
+        .data.search.nodes[] | 
+        select(all(.reviewRequests.nodes[]; .requestedReviewer.login != $me)) | 
+        "\(.repository.name)\t#\(.number)\t\(.title)\t\(.author.login)\t\(.url)"
+    ' 2>/dev/null)
+
+    local direct_lines=() team_lines=()
+    [[ -n "$direct" ]] && direct_lines=("${(@f)direct}")
+    [[ -n "$team" ]] && team_lines=("${(@f)team}")
+
+    if (( ${#direct_lines[@]} == 0 && ${#team_lines[@]} == 0 )); then
+        msg_success "All clear! Pull request review pipeline is empty."
+        return
+    fi
+
+    if (( ${#direct_lines[@]} > 0 )); then
+        msg_header_direct "${#direct_lines[@]}"
+        echo "$direct" | column -t -s $'\t'
+    fi
+
+    if (( ${#team_lines[@]} > 0 )); then
+        (( ${#direct_lines[@]} > 0 )) && printf "\n"
+        msg_header_team "${#team_lines[@]}"
+        echo "$team" | column -t -s $'\t'
+    fi
+}
+
+# --- Core Router ---
+
+check_deps
+
+case "$1" in
+    help|-h|--help)
+        cmd_help
+        ;;
+    worktree)
+        case "$2" in
+            add)             cmd_worktree_add "$3" ;;
+            remove)          cmd_worktree_remove "$3" ;;
+            help|-h|--help)  cmd_help ;;
+            *)               cmd_worktree_list ;;
+        esac
+        ;;
+    review)
+        cmd_review
+        ;;
+    "")
+        cmd_help
+        ;;
+    *)
+        error "invalid script execution syntax" "run 'cs help' to view available arguments"
+        ;;
+esac
