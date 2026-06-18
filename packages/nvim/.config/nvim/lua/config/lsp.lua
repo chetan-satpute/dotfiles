@@ -1,15 +1,16 @@
-vim.lsp.enable("lua_ls")
-vim.lsp.enable("ts_ls")
-vim.lsp.enable("ruby_lsp")
+vim.lsp.enable({
+	"lua_ls",
+	"ts_ls",
+	"eslint",
+})
 
 vim.api.nvim_create_autocmd("LspAttach", {
-	group = vim.api.nvim_create_augroup("my.lsp", {}),
-	callback = function(args)
-		local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
-		local buf = args.buf
+	group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
+	callback = function(event)
+		local client = assert(vim.lsp.get_client_by_id(event.data.client_id))
 
 		local map = function(keys, func, desc)
-			vim.keymap.set("n", keys, func, { buffer = buf, desc = "LSP: " .. desc })
+			vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
 		end
 
 		-- Hover documentation

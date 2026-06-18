@@ -5,9 +5,9 @@ return {
 
 	-- use a release tag to download pre-built binaries
 	version = "1.*",
-	-- AND/OR build from source, requires nightly: https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
+	-- AND/OR build from source
 	-- build = 'cargo build --release',
-	-- If you use nix, you can build from source using latest nightly rust with:
+	-- If you use nix, you can build from source with:
 	-- build = 'nix run .#build-plugin',
 
 	---@module 'blink.cmp'
@@ -31,30 +31,61 @@ return {
 			-- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
 			-- Adjusts spacing to ensure icons are aligned
 			nerd_font_variant = "mono",
+
+			kind_icons = {
+				Text = "󰉿",
+				Method = "󰊕",
+				Function = "󰊕",
+				Constructor = "",
+
+				Field = "󰜢",
+				Variable = "󰀫",
+				Property = "󰖷",
+
+				Class = "󱡠",
+				Interface = "",
+				Struct = "󱡠",
+				Module = "",
+
+				Unit = "󰑭",
+				Value = "󰎠",
+				Enum = "",
+				EnumMember = "",
+
+				Keyword = "󰌋",
+				Constant = "󰏿",
+
+				Snippet = "",
+				Color = "󰏘",
+				File = "󰈔",
+				Reference = "󰬲",
+				Folder = "󰉋",
+
+				Event = "",
+				Operator = "󰆕",
+				TypeParameter = "󰅲",
+			},
 		},
 
 		-- (Default) Only show the documentation popup when manually triggered
 		completion = {
-			documentation = { auto_show = true },
+			documentation = { auto_show = false },
 			menu = {
 				draw = {
 					columns = {
 						{ "kind_icon" },
-						{ "label", gap = 1 },
+						{ "label" },
+						{ "kind" },
 					},
 
 					components = {
 						kind_icon = {
-							text = function(ctx)
-								return ctx.kind_icon .. " "
-							end,
+							width = { min = 2 },
+						},
+						label = {
+							width = { min = 40 },
 						},
 					},
-				},
-			},
-			list = {
-				selection = {
-					preselect = true,
 				},
 			},
 		},

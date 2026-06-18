@@ -1,5 +1,6 @@
-require("config.options")
 require("config.lazy")
-require("config.lsp")
+require("config.options")
 require("config.mappings")
+require("config.lsp")
 require("config.treesitter")
+
