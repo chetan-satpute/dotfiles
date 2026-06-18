@@ -55,9 +55,9 @@ cmd_help() {
     printf "${CLR_DIM}Usage:${CLR_RESET}\n"
     printf "  cs <command> [arguments]\n\n"
     printf "${CLR_DIM}Commands:${CLR_RESET}\n"
-    printf "  ${CLR_GREEN}worktree${CLR_RESET}              \tLaunch interactive fzf picker to jump to active worktrees\n"
+    printf "  ${CLR_GREEN}worktree${CLR_RESET} [branch]      \tLaunch interactive fzf picker or jump directly to a worktree\n"
     printf "  ${CLR_GREEN}worktree add${CLR_RESET} <branch>  \tSafely isolate and build a branch inside a new worktree\n"
-    printf "  ${CLR_GREEN}worktree remove${CLR_RESET} <branch>   \tPurge a local worktree directory securely\n"
+    printf "  ${CLR_GREEN}worktree remove${CLR_RESET} <branch> \tPurge a local worktree directory securely\n"
     printf "  ${CLR_GREEN}review${CLR_RESET}                \tFetch a single-request live view of pending PR evaluations\n"
     printf "  ${CLR_GREEN}help, -h, --help${CLR_RESET}      \tDisplay this architectural breakdown\n"
 }
@@ -162,6 +162,8 @@ cmd_worktree_remove() {
 }
 
 cmd_worktree_list() {
+    local provided_branch="$1"
+
     get_repo_info
     local wt_base="$WORKTREE_ROOT/$REPO_OWNER/$REPO_NAME"
 
@@ -170,7 +172,14 @@ cmd_worktree_list() {
     fi
 
     local selected
-    selected=$(find "$wt_base" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | fzf --prompt="worktree > ")
+    if [[ -n "$provided_branch" ]]; then
+        selected="$provided_branch"
+        if [[ ! -d "$wt_base/$selected" ]]; then
+            error "worktree missing" "no active worktree found for branch: $selected"
+        fi
+    else
+        selected=$(find "$wt_base" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | fzf --prompt="worktree > ")
+    fi
 
     if [[ -n "$selected" ]]; then
         local target_path="$wt_base/$selected"
@@ -266,7 +275,7 @@ case "$1" in
             add)             cmd_worktree_add "$3" ;;
             remove)          cmd_worktree_remove "$3" ;;
             help|-h|--help)  cmd_help ;;
-            *)               cmd_worktree_list ;;
+            *)               cmd_worktree_list "$2" ;;
         esac
         ;;
     review)
