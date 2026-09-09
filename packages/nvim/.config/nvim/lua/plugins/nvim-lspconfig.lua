@@ -1,3 +1,6 @@
 return {
-	"neovim/nvim-lspconfig",
+  "neovim/nvim-lspconfig",
+  dependencies = {
+    { "b0o/schemastore.nvim", lazy = true }
+  }
 }

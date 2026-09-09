@@ -1,48 +1,54 @@
 vim.lsp.enable({
-	"lua_ls",
-	"ts_ls",
-	"eslint",
-	"gopls",
+  "lua_ls",
+  "ts_ls",
+  "eslint",
+  "gopls",
   "ruby_lsp",
+  "jsonls",
 })
 
 vim.api.nvim_create_autocmd("LspAttach", {
-	group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
-	callback = function(event)
-		local client = assert(vim.lsp.get_client_by_id(event.data.client_id))
+  group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
+  callback = function(event)
+    local client = assert(vim.lsp.get_client_by_id(event.data.client_id))
 
-		local map = function(keys, func, desc)
-			vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
-		end
+    local map = function(keys, func, desc)
+      vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
+    end
 
-		-- Hover documentation
-		if client:supports_method("textDocument/hover") then
-			map("K", vim.lsp.buf.hover, "Hover")
-		end
+    -- Hover documentation
+    if client:supports_method("textDocument/hover") then
+      map("K", vim.lsp.buf.hover, "Hover")
+    end
 
-		-- Go to definition
-		if client:supports_method("textDocument/definition") then
-			map("gd", vim.lsp.buf.definition, "Go to definition")
-		end
+    -- Go to definition
+    if client:supports_method("textDocument/definition") then
+      map("gd", vim.lsp.buf.definition, "Go to definition")
+    end
 
-		-- Go to implementation
-		if client:supports_method("textDocument/implementation") then
-			map("gi", vim.lsp.buf.implementation, "Go to implementation")
-		end
+    -- Go to implementation
+    if client:supports_method("textDocument/implementation") then
+      map("gi", vim.lsp.buf.implementation, "Go to implementation")
+    end
 
-		-- Find references
-		if client:supports_method("textDocument/references") then
-			map("gr", vim.lsp.buf.references, "Find references")
-		end
+    -- Find references
+    if client:supports_method("textDocument/references") then
+      map("gr", vim.lsp.buf.references, "Find references")
+    end
 
-		-- Rename symbol
-		if client:supports_method("textDocument/rename") then
-			map("<leader>rn", vim.lsp.buf.rename, "Rename")
-		end
+    -- Rename symbol
+    if client:supports_method("textDocument/rename") then
+      map("<leader>rn", vim.lsp.buf.rename, "Rename")
+    end
 
-		-- Code actions
-		if client:supports_method("textDocument/codeAction") then
-			map("<leader>ca", vim.lsp.buf.code_action, "Code action")
-		end
-	end,
+    -- Code actions
+    if client:supports_method("textDocument/codeAction") then
+      map("<leader>ca", vim.lsp.buf.code_action, "Code action")
+    end
+
+    -- Enable inlay hints only if the language server supports them
+    -- if client and client.server_capabilities.inlayHintProvider then
+    --   vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+    -- end
+  end,
 })

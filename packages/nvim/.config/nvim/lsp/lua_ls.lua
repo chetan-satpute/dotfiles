@@ -1,6 +1,6 @@
 return {
 	on_init = function(client)
-		client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
+    client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
 			-- Make the server aware of Neovim runtime files
 			workspace = {
 				library = {
