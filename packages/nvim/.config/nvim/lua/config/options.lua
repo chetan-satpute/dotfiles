@@ -16,6 +16,10 @@ vim.opt.smartindent = true
 -- No wrap in lines
 vim.opt.wrap = false
 
+-- Keep all folds open by default when opening a file
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 99
+
 -- Save undo history
 vim.opt.undofile = true
 

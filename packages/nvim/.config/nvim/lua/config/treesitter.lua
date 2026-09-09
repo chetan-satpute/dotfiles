@@ -7,25 +7,20 @@ vim.api.nvim_create_autocmd("FileType", {
 			return
 		end
 
-		-- Check if a parser exists and load it
-		if not vim.treesitter.language.add(language) then
-			return
-		end
 		-- Enable syntax highlighting and other treesitter features
-		vim.treesitter.start(buf, language)
+		pcall(vim.treesitter.start, buf)
 
 		-- Enable treesitter based folds
-		-- For more info on folds see `:help folds`
-		-- vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-		-- vim.wo.foldmethod = 'expr'
+		vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+		vim.wo[0][0].foldmethod = "expr"
 
 		-- Check if treesitter indentation is available for this language, and if so enable it
 		-- in case there is no indent query, the indentexpr will fallback to the vim's built in one
 		local has_indent_query = vim.treesitter.query.get(language, "indents") ~= nil
 
 		-- Enable treesitter based indentation
-		-- if has_indent_query then
-		-- 	vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-		-- end
+		if has_indent_query then
+			vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+		end
 	end,
-})
+});
