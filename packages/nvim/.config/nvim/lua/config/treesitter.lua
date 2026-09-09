@@ -24,8 +24,8 @@ vim.api.nvim_create_autocmd("FileType", {
 		local has_indent_query = vim.treesitter.query.get(language, "indents") ~= nil
 
 		-- Enable treesitter based indentation
-		if has_indent_query then
-			vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-		end
+		-- if has_indent_query then
+		-- 	vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+		-- end
 	end,
 })

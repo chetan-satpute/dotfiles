@@ -7,6 +7,7 @@ return {
 			typescriptreact = { "prettier" },
 			javascript = { "prettier" },
 			javascriptreact = { "prettier" },
+      go = { "gofmt" },
 		},
 
 		default_format_opts = {

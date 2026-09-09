@@ -2,6 +2,8 @@ vim.lsp.enable({
 	"lua_ls",
 	"ts_ls",
 	"eslint",
+	"gopls",
+  "ruby_lsp",
 })
 
 vim.api.nvim_create_autocmd("LspAttach", {
