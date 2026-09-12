@@ -1,52 +1,67 @@
 #!/usr/bin/env zsh
+#
+# Stow every package under packages/ (or just the ones named on the command
+# line) into $HOME. Any real file already sitting at a target path is backed
+# up before being adopted into the repo, so this is safe to run on a machine
+# that already has its own dotfiles in place.
+#
+# Usage:
+#   ./scripts/install.zsh              # install all packages
+#   ./scripts/install.zsh nvim zsh     # install only the named packages
 
-# Colors
-RED="\033[0;31m"
-GREEN="\033[0;32m"
-YELLOW="\033[1;33m"
-BLUE="\033[0;34m"
-BOLD="\033[1m"
-RESET="\033[0m"
+source "${0:A:h}/lib/common.zsh"
 
-# Check if 'stow' is installed
-if ! command -v stow >/dev/null 2>&1; then
-  echo "${RED}[ERROR]${RESET} GNU stow is not installed. Please install it and try again."
-  exit 1
-fi
+check_stow_installed
+resolve_dotfiles_dir
+validate_packages_dir
 
-# Get the Git repo root
-dotfiles_dir=$(git rev-parse --show-toplevel 2>/dev/null) || {
-  echo "${RED}[ERROR]${RESET} Failed to get dotfiles directory. Are you inside a Git repo?"
-  exit 1
-}
+validate_target_packages "$@"
+packages=("${(@f)$(resolve_target_packages "$@")}")
 
-packages_dir="${dotfiles_dir}/packages"
-target_dir="${HOME}"
-
-# Ensure packages_dir exists
-if [[ ! -d "$packages_dir" ]]; then
-  echo "${RED}[ERROR]${RESET} Directory '${packages_dir}' does not exist."
-  exit 1
-fi
-
+run_timestamp=$(date +%Y%m%d-%H%M%S)
+backup_root="${HOME}/.dotfiles-backup/${run_timestamp}"
+backed_up_any=false
 failed_pkgs=()
 
-# Loop through all directories inside packages_dir
-for pkg_path in "$packages_dir"/*; do
-  if [[ -d "$pkg_path" ]]; then
-    pkg=$(basename "$pkg_path")
-    printf "→ ${BOLD}Stowing${RESET} ${BLUE}%-20s${RESET}" "$pkg"
+for pkg in "${packages[@]}"; do
+  printf "→ ${BOLD}Stowing${RESET} ${BLUE}%-20s${RESET}" "$pkg"
 
-    if stow --adopt --target="$target_dir" --dir="$packages_dir" "$pkg"; then
-      echo " ${GREEN}[OK]${RESET}"
+  pkg_failed=false
+  for rel_path in "${(@f)$(scan_adopt_conflicts "$pkg" "")}"; do
+    [[ -z "$rel_path" ]] && continue
+    target_path="${target_dir}/${rel_path}"
+
+    # A real file/dir sits at a path this package manages — `stow --adopt`
+    # would swallow it into the repo. Move it aside first so nothing is
+    # silently overwritten.
+    dest="${backup_root}/${pkg}/${rel_path}"
+    if mkdir -p "$(dirname "$dest")" && mv "$target_path" "$dest"; then
+      backed_up_any=true
     else
       echo " ${RED}[FAILED]${RESET}"
+      log_error "Could not back up '${target_path}' before adopting it."
       failed_pkgs+=("$pkg")
+      pkg_failed=true
+      break
     fi
+  done
+
+  if [[ "$pkg_failed" == true ]]; then
+    continue
+  fi
+
+  if stow --adopt --target="$target_dir" --dir="$packages_dir" "$pkg"; then
+    echo " ${GREEN}[OK]${RESET}"
+  else
+    echo " ${RED}[FAILED]${RESET}"
+    failed_pkgs+=("$pkg")
   fi
 done
 
-# Summary
+if [[ "$backed_up_any" == true ]]; then
+  echo "\n${YELLOW}Note:${RESET} pre-existing files were backed up to ${BOLD}${backup_root}${RESET}"
+fi
+
 if [[ ${#failed_pkgs[@]} -eq 0 ]]; then
   echo "\n${GREEN}✔ All packages stowed successfully to ${BOLD}$target_dir${RESET}"
 else
@@ -56,4 +71,3 @@ else
   done
   exit 1
 fi
-
