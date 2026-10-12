@@ -1,44 +1,15 @@
--- local mode_colors = {
---     n = "#f7768e", -- red
---     no = "#f7768e",
---     cv = "#f7768e",
---     ce = "#f7768e",
---     ["!"] = "#f7768e",
---     t = "#f7768e",
---     i = "#9ece6a", -- green
---     v = "#7aa2f7", -- blue
---     ["␖"] = "#7aa2f7",
---     V = "#7aa2f7",
---     c = "#7dcfff", -- cyan
---     s = "#ff9e64", -- orange
---     S = "#ff9e64",
---     ["␓"] = "#ff9e64",
---     ic = "#e0af68", -- yellow
---     R = "#bb9af7", -- magenta/violet
---     Rv = "#bb9af7",
---     r = "#1abc9c", -- teal
---     rm = "#1abc9c",
---     ["r?"] = "#1abc9c",
--- }
-
 local section_c = {
-	-- {
-	--     "mode",
-	--     color = function()
-	--         return { fg = mode_colors[vim.fn.mode()], gui = "bold" }
-	--     end,
-	-- },
 	{
 		"branch",
-		color = { fg = "#bb9af7" }, -- violet
+		color = { fg = "#949CCC" }, -- indigo-300
 	},
 	{
 		"diff",
 		colored = true,
 		diff_color = {
-			added = { fg = "#9ece6a" }, -- green
-			modified = { fg = "#ff9e64" }, -- orange
-			removed = { fg = "#f7768e" }, -- red
+			added = { fg = "#5AC9BD" }, -- teal-400
+			modified = { fg = "#DB9048" }, -- amber-400
+			removed = { fg = "#CC5676" }, -- garnet-400
 		},
 	},
 }
@@ -48,17 +19,22 @@ local section_x = {
 		"diagnostics",
 		sources = { "nvim_lsp", "nvim_diagnostic" },
 		diagnostics_color = {
-			error = { fg = "#db4b4b" },
-			warn = { fg = "#e0af68" },
-			info = { fg = "#0db9d7" },
-			hint = { fg = "#1abc9c" },
+			error = { fg = "#CC5676" }, -- garnet-400
+			warn = { fg = "#D5BE8B" }, -- gold-300
+			info = { fg = "#5D89C5" }, -- sapphire-400
+			hint = { fg = "#5AC9BD" }, -- teal-400
 		},
 	},
 	{
 		"filename",
 		path = 4,
-		color = { fg = "#bb9af7" },
+		color = { fg = "#5D89C5" }, -- sapphire-400
 	},
+}
+
+local transparent_theme = {
+	normal = { c = { fg = "#C6C7D4", bg = "NONE" } },
+	inactive = { c = { fg = "#8284A1", bg = "NONE" } },
 }
 
 return {
@@ -83,7 +59,7 @@ return {
 				winbar = 1000,
 			},
 			section_separators = { left = "", right = "" },
-			theme = { normal = { c = { bg = "#1a1b26" } } }, -- tokyonight.bg_dark
+			theme = transparent_theme,
 		},
 		sections = {
 			lualine_a = {},

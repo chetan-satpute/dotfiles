@@ -1,13 +1,32 @@
 format = """ $character"""
 
 right_format = """\
-$directory\ 
+$directory\
 $git_branch\
 $git_status\
 $git_state\
 """
 
 [character]
-success_symbol = '[λ](green)'
-error_symbol = '[λ](green)'
+success_symbol = '[🔱](bold #CCA757)'   # gold-400
+error_symbol   = '[🔱](bold #CC5676)'   # garnet-400
+vimcmd_symbol  = '[🔱](bold #5D89C5)'   # sapphire-400
 
+[directory]
+style = 'bold #5D89C5'                  # sapphire-400
+format = '[$path]($style)[$read_only]($read_only_style) '
+truncation_length = 3
+read_only = ' ro'
+read_only_style = 'bold #CC5676'        # garnet-400
+
+[git_branch]
+style = 'bold #949CCC'                  # indigo-300
+format = '[$symbol$branch]($style) '
+
+[git_status]
+style = 'bold #DB9048'                  # amber-400
+format = '([$all_status$ahead_behind]($style) )'
+
+[git_state]
+style = 'bold #CC5676'                  # garnet-400
+format = '[($state)]($style) '
